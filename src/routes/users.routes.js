@@ -1,8 +1,11 @@
 const express = require('express');
 const service = require('../services/user.service');
 const { createUserSchema } = require('../schemas/users.schemas');
-const validateData = require('../middlewares/validate.middleware');
+const validateData = require('../middlewares/validate.middlewares');
 const boom = require('@hapi/boom');
+const {
+  verifyApiKey,
+} = require('../middlewares/verifyApiKey.middlewares');
 
 const router = express.Router();
 const user = new service();
@@ -20,14 +23,16 @@ router.get('/', async (req, res, next) => {
 });
 
 //Create account
+
 router.post(
   '/signup',
+  verifyApiKey, //Protect routes with api key
   validateData(createUserSchema, 'body'),
   async (req, res, next) => {
     try {
       const data = req.body;
-      const newUser = await user.createAccount(data);
-      res.status(201).json(newUser);
+      const newUserId = await user.createAccount(data);
+      res.status(201).json({ message: 'Account created', newUserId });
     } catch (err) {
       let error;
       //Status code 409 conflict (usually when a register already exists)

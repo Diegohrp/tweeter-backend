@@ -16,7 +16,6 @@ class User {
 
   async createAccount(data) {
     const [response] = await db.insert('users', data);
-    console.log(response.insertId);
     return response.insertId;
   }
 }
