@@ -12,6 +12,12 @@ class Queries {
     const response = await pool.query(query, [...values]);
     return response;
   }
+
+  async findOne({ tableName, fields, idField, value }) {
+    const query = `SELECT ${fields} from ${tableName} WHERE ${idField} = ?`;
+    const response = await pool.query(query, [value]);
+    return response;
+  }
 }
 
 module.exports = { Queries };

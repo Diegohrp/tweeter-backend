@@ -1,5 +1,5 @@
 const express = require('express');
-const service = require('../services/user.service');
+const Service = require('../services/user.service');
 const { createUserSchema } = require('../schemas/users.schemas');
 const validateData = require('../middlewares/validate.middlewares');
 const boom = require('@hapi/boom');
@@ -8,11 +8,11 @@ const {
 } = require('../middlewares/verifyApiKey.middlewares');
 
 const router = express.Router();
-const user = new service();
+const userService = new Service();
 
 router.get('/', async (req, res, next) => {
   try {
-    const data = await user.find();
+    const [data] = await userService.findByEmail('tory@cobrakai.com');
     res.status(200).json({
       msg: 'users',
       data,
@@ -31,7 +31,7 @@ router.post(
   async (req, res, next) => {
     try {
       const data = req.body;
-      const newUserId = await user.createAccount(data);
+      const newUserId = await userService.createAccount(data);
       res.status(201).json({ message: 'Account created', newUserId });
     } catch (err) {
       let error;

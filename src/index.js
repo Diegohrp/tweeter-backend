@@ -23,6 +23,7 @@ const options = {
 //app needs to use middleware express.json() to understand json
 app.use(express.json());
 app.use(cors(options));
+require('./utils/auth');
 
 APIRouter(app);
 //middlewares to handle errors
