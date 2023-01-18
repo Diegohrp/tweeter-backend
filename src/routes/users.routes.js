@@ -6,21 +6,28 @@ const boom = require('@hapi/boom');
 const {
   verifyApiKey,
 } = require('../middlewares/verifyApiKey.middlewares');
+const passport = require('passport');
 
 const router = express.Router();
 const userService = new Service();
 
-router.get('/', async (req, res, next) => {
-  try {
-    const [data] = await userService.findByEmail('tory@cobrakai.com');
-    res.status(200).json({
-      msg: 'users',
-      data,
-    });
-  } catch (err) {
-    res.status(500).json({ err: err.message });
+router.get(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const [data] = await userService.findByEmail(
+        'tory@cobrakai.com'
+      );
+      res.status(200).json({
+        msg: 'users',
+        data,
+      });
+    } catch (err) {
+      res.status(500).json({ err: err.message });
+    }
   }
-});
+);
 
 //Create account
 
