@@ -9,10 +9,14 @@ class User {
     this.users = [];
   }
 
-  async find() {
-    const [data] = await pool.query('SELECT * from users');
-
-    return data;
+  async createAccount(data) {
+    const hash = await bcrypt.hash(data.password, 10);
+    const newData = {
+      ...data,
+      password: hash,
+    };
+    const [response] = await db.insert('users', newData);
+    return response.insertId;
   }
 
   async findByEmail(email) {
@@ -32,14 +36,32 @@ class User {
     return data;
   }
 
-  async createAccount(data) {
-    const hash = await bcrypt.hash(data.password, 10);
-    const newData = {
-      ...data,
-      password: hash,
-    };
-    const [response] = await db.insert('users', newData);
-    return response.insertId;
+  async getUserInfo(id) {
+    const [data] = await db.findOne({
+      tableName: 'users',
+      fields: [
+        'photo',
+        'name',
+        'last_name',
+        'bio',
+        'email',
+        'username',
+        'password',
+      ],
+      idField: 'id',
+      value: id,
+    });
+    return data;
+  }
+
+  async updateUserInfo(data, id) {
+    const [response] = await db.updateOne({
+      tableName: 'users',
+      data,
+      idField: 'id',
+      id,
+    });
+    return response;
   }
 }
 

@@ -1,6 +1,9 @@
 const express = require('express');
 const Service = require('../services/user.service');
-const { createUserSchema } = require('../schemas/users.schemas');
+const {
+  createUserSchema,
+  changeUserInfoSchema,
+} = require('../schemas/users.schemas');
 const validateData = require('../middlewares/validate.middlewares');
 const boom = require('@hapi/boom');
 const {
@@ -30,7 +33,6 @@ router.get(
 );
 
 //Create account
-
 router.post(
   '/signup',
   verifyApiKey, //Protect routes with api key
@@ -47,6 +49,45 @@ router.post(
         ? (error = boom.conflict('Email already registered'))
         : (error = boom.conflict());
       next(error);
+    }
+  }
+);
+
+//Get and edit profile info
+router.get(
+  '/profile-info',
+  verifyApiKey,
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      //req contains the jwt, passport gives it the name "user"
+      //We want to get the id (the "sub" in the token)
+      const { sub } = req.user;
+      const [userData] = await userService.getUserInfo(sub);
+      userData['password'] = '********';
+      res.status(200).json(userData);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.patch(
+  '/profile-info',
+  verifyApiKey,
+  passport.authenticate('jwt', { session: false }),
+  validateData(changeUserInfoSchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const { sub } = req.user;
+      const data = req.body;
+      const { info } = await userService.updateUserInfo(data, sub);
+      res.json({ msg: 'Your info has been updated', info });
+    } catch (err) {
+      if (err.code === 'ER_PARSE_ERROR') {
+        next(boom.badData('You have to change at least one field'));
+      }
+      next(err);
     }
   }
 );
