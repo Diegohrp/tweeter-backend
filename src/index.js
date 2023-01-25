@@ -6,9 +6,13 @@ const {
   boomError,
 } = require('./middlewares/errors.middlewares');
 const cors = require('cors');
+const multer = require('multer');
+
+const uploadImg = multer();
 
 const port = 3000;
 const app = express();
+
 const whitelist = ['http://127.0.0.1:3006', 'http://localhost:3006'];
 const options = {
   origin: (origin, cb) => {
@@ -20,8 +24,11 @@ const options = {
     }
   },
 };
+
 //app needs to use middleware express.json() to understand json
 app.use(express.json());
+//multer middelware to understand multipart/form-data
+app.use(uploadImg.single('image'));
 app.use(cors(options));
 require('./utils/auth');
 

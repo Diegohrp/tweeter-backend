@@ -11,6 +11,9 @@ const config = {
   dbUrl: process.env.DB_URL,
   apiKey: process.env.API_KEY,
   jwtSecret: process.env.JWT_SECRET,
+  cloudName: process.env.CLOUDINARY_NAME,
+  cloudApiKey: process.env.CLOUDINARY_API_KEY,
+  cloudSecret: process.env.CLOUDINARY_SECRET,
 };
 
 module.exports = config;
