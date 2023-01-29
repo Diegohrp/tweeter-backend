@@ -14,10 +14,12 @@ const {
 //Services
 const Service = require('../services/post.service');
 const { Image } = require('../services/images.service');
+const { PostHashTags } = require('../services/post-hashtags.service');
 
 const router = express.Router();
 const postService = new Service();
 const imageService = new Image();
+const postHashtagsService = new PostHashTags();
 
 router.post(
   '/',
@@ -25,7 +27,10 @@ router.post(
   async (req, res, next) => {
     try {
       const postData = { ...req.body };
+      const hashtags = postData.hashtags;
       delete postData.image; //Delete that filed, because it could be null
+      delete postData.hashtags; //we don't need hashtags in postData, but they are stored in "hashtags"
+
       //If there is a file, upload to cloudinary
       //Get the URL and add it to the fiels image of the object postData
       if (req.file) {
@@ -33,32 +38,19 @@ router.post(
           await imageService.uploadImage(req.file);
         postData['image'] = imageUrl;
       }
-      const response = await postService.makePost(postData);
-      res.json(response);
+      const [{ insertId }] = await postService.makePost(postData);
+
+      if (hashtags) {
+        await postHashtagsService.registerHashtags(
+          insertId,
+          hashtags
+        );
+      }
+      const post = { insertId, ...postData };
+      res.json(post);
     } catch (err) {
       next(err);
     }
-
-    /* cloudinary.uploader
-    .upload_stream(
-      {
-        resource_type: 'raw',
-        public_id: req.file.originalname,
-        folder: 'tweeter/posts',
-      },
-      (err, result) => {
-        if (err) {
-          console.log('ERROR: ' + err);
-          return res.status(500).send('Algo malió sal');
-        }
-        console.log(result);
-        res.send('OKS');
-      }
-    )
-    .end(req.file.buffer); */
-
-    /* const send = await postService.makePost(data);
-  res.json(send); */
   }
 );
 

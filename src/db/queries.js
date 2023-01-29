@@ -28,6 +28,22 @@ class Queries {
     const response = pool.query(query, [...values, id]);
     return response;
   }
+  //callProcedure({name:String,inputs:Array,outputs:Array})
+  async callProcedure({ name, inputs, outputs = null }) {
+    let response = 0;
+
+    if (outputs) {
+      const procedure = `CALL ${name}(${inputs.map(
+        (In) => '?'
+      )},${outputs})`;
+      await pool.query(procedure, inputs);
+      response = await pool.query(`SELECT (${outputs}) AS response`);
+    } else {
+      const procedure = `CALL ${name}(${inputs.map((In) => '?')})`;
+      await pool.query(procedure, inputs);
+    }
+    return response;
+  }
 }
 
 module.exports = { Queries };
