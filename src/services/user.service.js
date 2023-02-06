@@ -63,6 +63,16 @@ class User {
     });
     return response;
   }
+
+  async getUserPhoto(id) {
+    const [response] = await db.findOne({
+      tableName: 'users',
+      fields: ['photo'],
+      idField: 'id',
+      value: id,
+    });
+    return response;
+  }
 }
 
 module.exports = User;

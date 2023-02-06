@@ -92,4 +92,25 @@ router.patch(
   }
 );
 
+//Get profile photo
+router.get(
+  '/photo',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const id = req.user.sub;
+      const [{ photo }] = await userService.getUserPhoto(id);
+      console.log(photo);
+      photo
+        ? res.json({ photo })
+        : res.json({
+            photo:
+              'https://res.cloudinary.com/dpimpzyh4/image/upload/v1674951625/tweeter/posts/1674951621844_bobLavando.jpeg.jpg',
+          });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 module.exports = router;
