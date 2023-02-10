@@ -95,12 +95,13 @@ router.patch(
 //Get profile photo
 router.get(
   '/photo',
+  verifyApiKey,
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
       const id = req.user.sub;
       const [{ photo }] = await userService.getUserPhoto(id);
-      console.log(photo);
+
       photo
         ? res.json({ photo })
         : res.json({

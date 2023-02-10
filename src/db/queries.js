@@ -44,6 +44,16 @@ class Queries {
     }
     return response;
   }
+
+  async find({ view, condition, offset, limit }) {
+    const query = `SELECT * from ${view} WHERE ${condition.field}=? LIMIT ?,?`;
+    const response = await pool.query(query, [
+      condition.value,
+      offset,
+      limit,
+    ]);
+    return response;
+  }
 }
 
 module.exports = { Queries };
