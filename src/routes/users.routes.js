@@ -92,19 +92,22 @@ router.patch(
   }
 );
 
-//Get profile photo
+//Get basic user info
 router.get(
-  '/photo',
+  '/basic-info',
   verifyApiKey,
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
       const id = req.user.sub;
-      const [{ photo }] = await userService.getUserPhoto(id);
+      const [{ photo, name, last_name }] =
+        await userService.getUserBasicInfo(id);
 
       photo
-        ? res.json({ photo })
+        ? res.json({ id, name, last_name, photo })
         : res.json({
+            id,
+            name,
             photo:
               'https://res.cloudinary.com/dpimpzyh4/image/upload/v1674951625/tweeter/posts/1674951621844_bobLavando.jpeg.jpg',
           });

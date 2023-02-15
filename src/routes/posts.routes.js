@@ -59,7 +59,7 @@ router.get('/home', async (req, res, next) => {
     const { limit, offset } = req.query;
     console.log({ limit, offset });
     const [data] = await postService.getPosts(4, offset, limit);
-    console.log(data);
+
     res.json(data);
   } catch (err) {
     next(err);

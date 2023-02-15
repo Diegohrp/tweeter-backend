@@ -64,10 +64,10 @@ class User {
     return response;
   }
 
-  async getUserPhoto(id) {
+  async getUserBasicInfo(id) {
     const [response] = await db.findOne({
       tableName: 'users',
-      fields: ['photo'],
+      fields: ['name', 'last_name', 'photo'],
       idField: 'id',
       value: id,
     });
