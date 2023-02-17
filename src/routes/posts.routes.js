@@ -57,7 +57,7 @@ router.post(
 router.get('/home', async (req, res, next) => {
   try {
     const { limit, offset } = req.query;
-    console.log({ limit, offset });
+
     const [data] = await postService.getPosts(4, offset, limit);
 
     res.json(data);

@@ -3,7 +3,7 @@ const joi = require('joi');
 const content = joi.string();
 const privacy_id = joi.number().max(2);
 const user_id = joi.number().integer().positive().required();
-const img = joi.string().regex(/^[\w -]*\.(png|jpg|jpeg|jfif)$/i);
+const img = joi.string().regex(/^[\w -()]*\.(png|jpg|jpeg|jfif)$/i);
 const imgSize = joi.number().max(2 * 1024 * 1024);
 const hashtags = joi
   .string()
