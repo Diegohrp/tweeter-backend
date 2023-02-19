@@ -108,6 +108,7 @@ router.get(
         : res.json({
             id,
             name,
+            last_name,
             photo:
               'https://res.cloudinary.com/dpimpzyh4/image/upload/v1674951625/tweeter/posts/1674951621844_bobLavando.jpeg.jpg',
           });

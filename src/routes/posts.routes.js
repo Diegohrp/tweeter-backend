@@ -15,6 +15,7 @@ const {
 const Service = require('../services/post.service');
 const { Image } = require('../services/images.service');
 const { PostHashTags } = require('../services/post-hashtags.service');
+const passport = require('passport');
 
 const router = express.Router();
 const postService = new Service();
@@ -54,16 +55,23 @@ router.post(
   }
 );
 
-router.get('/home', async (req, res, next) => {
-  try {
-    const { limit, offset } = req.query;
-
-    const [data] = await postService.getPosts(4, offset, limit);
-
-    res.json(data);
-  } catch (err) {
-    next(err);
+router.get(
+  '/home',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const { sub: userId } = req.user;
+      const { limit, offset } = req.query;
+      const [data] = await postService.getPosts(
+        userId,
+        offset,
+        limit
+      );
+      res.json(data);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 module.exports = router;

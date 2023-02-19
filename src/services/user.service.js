@@ -71,6 +71,7 @@ class User {
       idField: 'id',
       value: id,
     });
+
     return response;
   }
 }
