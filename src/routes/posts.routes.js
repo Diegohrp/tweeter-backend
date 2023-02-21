@@ -74,4 +74,34 @@ router.get(
   }
 );
 
+router.post(
+  '/like-post',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    const { sub: userId } = req.user;
+    const { postId } = req.body;
+    try {
+      await postService.likePost(userId, postId);
+      res.json('OK');
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.delete(
+  '/like-post/:postId',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    const { sub: userId } = req.user;
+    const { postId } = req.params;
+    try {
+      await postService.removeLikePost(userId, parseInt(postId));
+      res.json('OK');
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 module.exports = router;

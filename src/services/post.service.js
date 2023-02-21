@@ -17,6 +17,22 @@ class Post {
     });
     return response;
   }
+
+  async likePost(user_id, post_id) {
+    const response = await db.callProcedure({
+      name: 'add_like',
+      inputs: [user_id, post_id],
+    });
+    return response;
+  }
+
+  async removeLikePost(user_id, post_id) {
+    const response = await db.callProcedure({
+      name: 'remove_like',
+      inputs: [user_id, post_id],
+    });
+    return response;
+  }
 }
 
 module.exports = Post;
