@@ -54,6 +54,11 @@ class Queries {
     ]);
     return response;
   }
+
+  async delete({ tableName, condition }) {
+    const query = `DELE FROM ${tableName} WHERE ${condition.field}=?`;
+    await pool.query(query, [condition.value]);
+  }
 }
 
 module.exports = { Queries };

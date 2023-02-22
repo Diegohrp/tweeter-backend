@@ -18,20 +18,31 @@ class Post {
     return response;
   }
 
-  async likePost(user_id, post_id) {
+  async addInteraction(user_id, post_id, interaction) {
     const response = await db.callProcedure({
-      name: 'add_like',
+      name: interaction,
       inputs: [user_id, post_id],
     });
     return response;
   }
 
-  async removeLikePost(user_id, post_id) {
+  async removeInteraction(user_id, post_id, interaction) {
     const response = await db.callProcedure({
-      name: 'remove_like',
+      name: interaction,
       inputs: [user_id, post_id],
     });
     return response;
+  }
+
+  async savePost(user_id, post_id) {
+    const response = await db.insert('saved', { user_id, post_id });
+    return response;
+  }
+  async removeBookmark(id) {
+    await db.delete({
+      tableName: 'saved',
+      condition: { field: 'id', value: id },
+    });
   }
 }
 

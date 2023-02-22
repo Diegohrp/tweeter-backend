@@ -81,7 +81,26 @@ router.post(
     const { sub: userId } = req.user;
     const { postId } = req.body;
     try {
-      await postService.likePost(userId, postId);
+      await postService.addInteraction(userId, postId, 'add_like');
+      res.json('OK');
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.post(
+  '/retweets',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const { sub: userId } = req.user;
+      const { postId } = req.body;
+      await postService.addInteraction(
+        userId,
+        postId,
+        'make_retweet'
+      );
       res.json('OK');
     } catch (err) {
       next(err);
@@ -93,10 +112,65 @@ router.delete(
   '/like-post/:postId',
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
-    const { sub: userId } = req.user;
-    const { postId } = req.params;
     try {
-      await postService.removeLikePost(userId, parseInt(postId));
+      const { sub: userId } = req.user;
+      const { postId } = req.params;
+      await postService.removeInteraction(
+        userId,
+        parseInt(postId),
+        'remove_like'
+      );
+      res.json('OK');
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.delete(
+  '/retweets/:postId',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const { sub: userId } = req.user;
+      const { postId } = req.params;
+      await postService.removeInteraction(
+        userId,
+        parseInt(postId),
+        'remove_retweet'
+      );
+      res.json('OK');
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.post(
+  '/bookmarks',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const { sub: userId } = req.user;
+      const { postId } = req.body;
+      const [{ insertId }] = await postService.savePost(
+        userId,
+        postId
+      );
+      res.json(insertId);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.delete(
+  '/bookmarks',
+  passport.authenticate('jwt'),
+  async (req, res, next) => {
+    try {
+      const { bookmarkId } = req.params;
+      await postService.removeBookmark(bookmarkId);
       res.json('OK');
     } catch (err) {
       next(err);
