@@ -56,7 +56,7 @@ class Queries {
   }
 
   async delete({ tableName, condition }) {
-    const query = `DELE FROM ${tableName} WHERE ${condition.field}=?`;
+    const query = `DELETE FROM ${tableName} WHERE ${condition.field}=?`;
     await pool.query(query, [condition.value]);
   }
 }

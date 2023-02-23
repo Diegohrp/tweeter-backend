@@ -165,12 +165,12 @@ router.post(
 );
 
 router.delete(
-  '/bookmarks',
-  passport.authenticate('jwt'),
+  '/bookmarks/:bookmarkId',
+  passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
       const { bookmarkId } = req.params;
-      await postService.removeBookmark(bookmarkId);
+      await postService.removeBookmark(parseInt(bookmarkId));
       res.json('OK');
     } catch (err) {
       next(err);
