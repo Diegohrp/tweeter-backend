@@ -39,4 +39,23 @@ router.post(
   }
 );
 
+router.get(
+  '/:postId',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const { postId } = req.params;
+      const { limit, offset } = req.query;
+      const [data] = await commentService.getComments(
+        postId,
+        limit,
+        offset
+      );
+      res.json(data);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 module.exports = router;

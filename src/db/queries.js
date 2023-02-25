@@ -45,10 +45,18 @@ class Queries {
     return response;
   }
 
-  async find({ view, condition, offset, limit }) {
-    const query = `SELECT * from ${view} WHERE ${condition.field}=? LIMIT ?,?`;
+  async find({ view, conditions, offset, limit }) {
+    const fields = conditions.map((obj) =>
+      conditions[conditions.length - 1] === obj &&
+      conditions.length > 1
+        ? `AND ${obj.field}=?`
+        : `${obj.field}=?`
+    );
+    const values = conditions.map((obj) => obj.value);
+
+    const query = `SELECT * from ${view} WHERE ${fields} LIMIT ?,?`;
     const response = await pool.query(query, [
-      condition.value,
+      ...values,
       offset,
       limit,
     ]);

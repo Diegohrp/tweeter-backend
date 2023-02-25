@@ -11,7 +11,7 @@ class Post {
   async getPosts(userId, offset, limit) {
     const response = await db.find({
       view: 'home_posts_view',
-      condition: { field: 'current_userId', value: userId },
+      conditions: [{ field: 'current_userId', value: userId }],
       offset: offset ? parseInt(offset) : 1,
       limit: limit ? parseInt(limit) : 100,
     });
