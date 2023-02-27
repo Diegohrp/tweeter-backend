@@ -21,7 +21,9 @@ router.post(
   async (req, res, next) => {
     try {
       const { sub: user_id } = req.user;
+      console.log(user_id);
       const commentData = { user_id, ...req.body };
+      delete commentData.image;
 
       if (req.file) {
         const { secure_url: imageUrl } =
@@ -31,8 +33,7 @@ router.post(
       const [{ insertId }] = await commentService.makeComment(
         commentData
       );
-      console.log(insertId);
-      res.json('OK');
+      res.send({ insertId, ...commentData });
     } catch (err) {
       next(err);
     }
