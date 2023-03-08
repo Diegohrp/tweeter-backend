@@ -33,11 +33,17 @@ class Queries {
     let response = 0;
 
     if (outputs) {
+      console.log(inputs);
       const procedure = `CALL ${name}(${inputs.map(
         (In) => '?'
       )},${outputs})`;
+
       await pool.query(procedure, inputs);
-      response = await pool.query(`SELECT (${outputs}) AS response`);
+      console.log(`SELECT (${outputs}) AS response`);
+
+      response = await pool.query(
+        `SELECT (${outputs}) AS response FOR UPDATE`
+      );
     } else {
       const procedure = `CALL ${name}(${inputs.map((In) => '?')})`;
       await pool.query(procedure, inputs);

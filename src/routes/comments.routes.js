@@ -21,7 +21,7 @@ router.post(
   async (req, res, next) => {
     try {
       const { sub: user_id } = req.user;
-      console.log(user_id);
+
       const commentData = { user_id, ...req.body };
       delete commentData.image;
 
@@ -30,9 +30,8 @@ router.post(
           await imageService.uploadImage(req.file);
         commentData['image'] = imageUrl;
       }
-      const [{ insertId }] = await commentService.makeComment(
-        commentData
-      );
+      const insertId = await commentService.makeComment(commentData);
+
       res.send({ insertId, ...commentData });
     } catch (err) {
       next(err);
@@ -52,6 +51,7 @@ router.get(
         limit,
         offset
       );
+
       res.json(data);
     } catch (err) {
       next(err);

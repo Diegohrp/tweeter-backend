@@ -7,8 +7,24 @@ class CommentService {
 
   async makeComment(data) {
     data['post_id'] = parseInt(data['post_id']);
-    const response = await db.insert('comments', data);
-    return response;
+    //insert comment, get the commentId
+    const [{ insertId }] = await db.insert('comments', data);
+    //get num comments from the current post
+    const [[{ numComments }]] = await db.findOne({
+      tableName: 'comments',
+      fields: ['COUNT(*) AS numComments'],
+      idField: 'post_id',
+      value: data.post_id,
+    });
+    //update num comments
+    await db.updateOne({
+      tableName: 'posts',
+      data: { num_comments: numComments },
+      idField: 'id',
+      id: data.post_id,
+    });
+
+    return insertId;
   }
 
   async getComments(postId, limit, offset) {
