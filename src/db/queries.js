@@ -13,9 +13,17 @@ class Queries {
     return response;
   }
   //Find by id or email
-  async findOne({ tableName, fields, idField, value }) {
-    const query = `SELECT ${fields} from ${tableName} WHERE ${idField} = ?`;
-    const response = await pool.query(query, [value]);
+  async findOne({ tableName, fields, idFields, values }) {
+    const conditions = idFields
+      .map((field) =>
+        idFields[0] === field ? `${field}=?` : `AND ${field}=?`
+      )
+      .join(' ')
+      .replace(',', '');
+
+    const query = `SELECT ${fields} from ${tableName} WHERE ${conditions}`;
+
+    const response = await pool.query(query, values);
     return response;
   }
 

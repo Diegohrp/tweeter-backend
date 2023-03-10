@@ -30,8 +30,8 @@ class User {
         'username',
         'password',
       ],
-      idField: 'email',
-      value: email,
+      idFields: ['email'],
+      values: [email],
     });
     return data;
   }
@@ -48,8 +48,8 @@ class User {
         'username',
         'password',
       ],
-      idField: 'id',
-      value: id,
+      idFields: ['id'],
+      values: [id],
     });
     return data;
   }
@@ -68,8 +68,8 @@ class User {
     const [response] = await db.findOne({
       tableName: 'users',
       fields: ['name', 'last_name', 'photo'],
-      idField: 'id',
-      value: id,
+      idFields: ['id'],
+      values: [id],
     });
 
     return response;
