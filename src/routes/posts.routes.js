@@ -145,7 +145,7 @@ router.delete(
     }
   }
 );
-
+//Bookmarks
 router.post(
   '/bookmarks',
   passport.authenticate('jwt', { session: false }),
@@ -153,11 +153,8 @@ router.post(
     try {
       const { sub: userId } = req.user;
       const { postId } = req.body;
-      const [{ insertId }] = await postService.savePost(
-        userId,
-        postId
-      );
-      res.json(insertId);
+      await postService.addInteraction(userId, postId, 'add_saved');
+      res.json('OK');
     } catch (err) {
       next(err);
     }
@@ -165,12 +162,18 @@ router.post(
 );
 
 router.delete(
-  '/bookmarks/:bookmarkId',
+  '/bookmarks/:postId',
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
-      const { bookmarkId } = req.params;
-      await postService.removeBookmark(parseInt(bookmarkId));
+      const { sub: userId } = req.user;
+      const { postId } = req.params;
+
+      await postService.removeInteraction(
+        userId,
+        parseInt(postId),
+        'remove_saved'
+      );
       res.json('OK');
     } catch (err) {
       next(err);

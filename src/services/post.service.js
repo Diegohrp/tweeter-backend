@@ -18,6 +18,10 @@ class Post {
     return response;
   }
 
+  async getBookmarks(userId, offset, limit, section) {
+    const response = await db.find();
+  }
+
   async addInteraction(user_id, post_id, interaction) {
     const response = await db.callProcedure({
       name: interaction,
@@ -32,17 +36,6 @@ class Post {
       inputs: [user_id, post_id],
     });
     return response;
-  }
-
-  async savePost(user_id, post_id) {
-    const response = await db.insert('saved', { user_id, post_id });
-    return response;
-  }
-  async removeBookmark(id) {
-    await db.delete({
-      tableName: 'saved',
-      condition: { field: 'id', value: id },
-    });
   }
 }
 
