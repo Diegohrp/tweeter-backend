@@ -168,13 +168,35 @@ router.delete(
     try {
       const { sub: userId } = req.user;
       const { postId } = req.params;
-
       await postService.removeInteraction(
         userId,
         parseInt(postId),
         'remove_saved'
       );
       res.json('OK');
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.get(
+  '/bookmarks/:section',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const { sub: userId } = req.user;
+      const { section } = req.params;
+      const { limit, offset } = req.query;
+
+      const [bookmarks] = await postService.getBookmarks(
+        userId,
+        offset,
+        limit,
+        section
+      );
+      console.log(bookmarks.length);
+      res.json(bookmarks);
     } catch (err) {
       next(err);
     }

@@ -19,7 +19,13 @@ class Post {
   }
 
   async getBookmarks(userId, offset, limit, section) {
-    const response = await db.find();
+    const response = await db.find({
+      view: `bookmarks_${section}_view`,
+      conditions: [{ field: 'current_userId', value: userId }],
+      offset: offset ? parseInt(offset) : 1,
+      limit: limit ? parseInt(limit) : 100,
+    });
+    return response;
   }
 
   async addInteraction(user_id, post_id, interaction) {
