@@ -35,17 +35,15 @@ router.post(
       //If there is a file, upload to cloudinary
       //Get the URL and add it to the fiels image of the object postData
       if (req.file) {
-        const { secure_url: imageUrl } =
-          await imageService.uploadImage(req.file);
+        const { secure_url: imageUrl } = await imageService.uploadImage(
+          req.file
+        );
         postData['image'] = imageUrl;
       }
       const [{ insertId }] = await postService.makePost(postData);
 
       if (hashtags) {
-        await postHashtagsService.registerHashtags(
-          insertId,
-          hashtags
-        );
+        await postHashtagsService.registerHashtags(insertId, hashtags);
       }
       const post = { insertId, ...postData };
       res.json(post);
@@ -62,11 +60,7 @@ router.get(
     try {
       const { sub: userId } = req.user;
       const { limit, offset } = req.query;
-      const [data] = await postService.getPosts(
-        userId,
-        offset,
-        limit
-      );
+      const [data] = await postService.getPosts(userId, offset, limit);
       res.json(data);
     } catch (err) {
       next(err);
@@ -96,12 +90,8 @@ router.post(
     try {
       const { sub: userId } = req.user;
       const { postId } = req.body;
-      await postService.addInteraction(
-        userId,
-        postId,
-        'make_retweet'
-      );
-      res.json('OK');
+      await postService.addInteraction(userId, postId, 'make_retweet');
+      res.json(userId);
     } catch (err) {
       next(err);
     }
@@ -115,12 +105,12 @@ router.delete(
     try {
       const { sub: userId } = req.user;
       const { postId } = req.params;
-      await postService.removeInteraction(
+      const result = await postService.removeInteraction(
         userId,
         parseInt(postId),
         'remove_like'
       );
-      res.json('OK');
+      res.json(result);
     } catch (err) {
       next(err);
     }
@@ -134,12 +124,13 @@ router.delete(
     try {
       const { sub: userId } = req.user;
       const { postId } = req.params;
-      await postService.removeInteraction(
+      const result = await postService.removeInteraction(
         userId,
         parseInt(postId),
         'remove_retweet'
       );
-      res.json('OK');
+
+      res.json(result);
     } catch (err) {
       next(err);
     }
@@ -168,12 +159,12 @@ router.delete(
     try {
       const { sub: userId } = req.user;
       const { postId } = req.params;
-      await postService.removeInteraction(
+      const result = await postService.removeInteraction(
         userId,
         parseInt(postId),
         'remove_saved'
       );
-      res.json('OK');
+      res.json(result);
     } catch (err) {
       next(err);
     }
@@ -195,8 +186,67 @@ router.get(
         limit,
         section
       );
-      console.log(bookmarks.length);
       res.json(bookmarks);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+const explore = async (req, orderBy, where = '') => {
+  const { sub: userId } = req.user;
+  const { limit, offset, filter } = req.query;
+  let whereClause;
+  filter
+    ? (whereClause = where + `AND content LIKE "%${filter}%"`)
+    : (whereClause = where);
+
+  const [posts] = await postService.getFromExplore({
+    userId,
+    whereClause,
+    orderBy,
+    limit,
+    offset,
+  });
+  return posts;
+};
+
+router.get(
+  '/explore/top',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const posts = await explore(
+        req,
+        'num_retweets DESC, num_likes DESC, num_comments DESC'
+      );
+      res.json(posts);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.get(
+  '/explore/latest',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const posts = await explore(req, 'date_info DESC');
+      res.json(posts);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.get(
+  '/explore/media',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const posts = await explore(req, 'date_info DESC', 'image IS NOT NULL');
+      res.json(posts);
     } catch (err) {
       next(err);
     }

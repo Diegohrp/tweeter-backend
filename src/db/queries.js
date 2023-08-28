@@ -15,9 +15,7 @@ class Queries {
   //Find by id or email
   async findOne({ tableName, fields, idFields, values }) {
     const conditions = idFields
-      .map((field) =>
-        idFields[0] === field ? `${field}=?` : `AND ${field}=?`
-      )
+      .map((field) => (idFields[0] === field ? `${field}=?` : `AND ${field}=?`))
       .join(' ')
       .replace(',', '');
 
@@ -42,16 +40,12 @@ class Queries {
 
     if (outputs) {
       console.log(inputs);
-      const procedure = `CALL ${name}(${inputs.map(
-        (In) => '?'
-      )},${outputs})`;
+      const procedure = `CALL ${name}(${inputs.map((In) => '?')},${outputs})`;
 
       await pool.query(procedure, inputs);
       console.log(`SELECT (${outputs}) AS response`);
 
-      response = await pool.query(
-        `SELECT (${outputs}) AS response FOR UPDATE`
-      );
+      response = await pool.query(`SELECT (${outputs}) AS response FOR UPDATE`);
     } else {
       const procedure = `CALL ${name}(${inputs.map((In) => '?')})`;
       await pool.query(procedure, inputs);
@@ -61,25 +55,43 @@ class Queries {
 
   async find({ view, conditions, offset, limit }) {
     const fields = conditions.map((obj) =>
-      conditions[conditions.length - 1] === obj &&
-      conditions.length > 1
+      conditions[conditions.length - 1] === obj && conditions.length > 1
         ? `AND ${obj.field}=?`
         : `${obj.field}=?`
     );
     const values = conditions.map((obj) => obj.value);
 
     const query = `SELECT * from ${view} WHERE ${fields} LIMIT ?,?`;
-    const response = await pool.query(query, [
-      ...values,
-      offset,
-      limit,
-    ]);
+    const response = await pool.query(query, [...values, offset, limit]);
     return response;
   }
 
   async delete({ tableName, condition }) {
     const query = `DELETE FROM ${tableName} WHERE ${condition.field}=?`;
     await pool.query(query, [condition.value]);
+  }
+
+  async getPostsFromExplore({
+    userId,
+    whereClause = false,
+    orderBy,
+    limit,
+    offset,
+  }) {
+    const query = `SELECT
+      posts_details_view.*,
+      posts_details_view.created_at AS date_info,
+      (SELECT saved.id FROM saved WHERE saved.user_id = ? AND saved.post_id = posts_details_view.id) AS saved,
+      (SELECT likes_posts.id FROM likes_posts WHERE likes_posts.user_id = ? AND likes_posts.post_id = posts_details_view.id) AS liked,
+      (SELECT retweets.user_id FROM retweets WHERE user_id = ? AND retweets.post_id = posts_details_view.id) AS who_retweeted_id
+    FROM posts_details_view
+    ${whereClause ? `WHERE ${whereClause}` : ''} 
+    ORDER BY ${orderBy} LIMIT ?,?`;
+    const values = [userId, userId, userId];
+    values.push(offset);
+    values.push(limit);
+    const response = await pool.query(query, values);
+    return response;
   }
 }
 

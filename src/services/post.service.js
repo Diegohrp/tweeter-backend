@@ -43,6 +43,23 @@ class Post {
     });
     return response;
   }
+
+  async getFromExplore({
+    userId,
+    whereClause = false,
+    orderBy,
+    limit,
+    offset,
+  }) {
+    const response = await db.getPostsFromExplore({
+      userId,
+      whereClause,
+      orderBy,
+      limit: limit ? parseInt(limit) : 100,
+      offset: offset ? parseInt(offset) : 1,
+    });
+    return response;
+  }
 }
 
 module.exports = Post;
