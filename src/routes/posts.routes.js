@@ -198,7 +198,7 @@ const explore = async (req, orderBy, where = '') => {
   const { limit, offset, filter } = req.query;
   let whereClause;
   filter
-    ? (whereClause = where + `AND content LIKE "%${filter}%"`)
+    ? (whereClause = `${where ? where + ' AND' : ''}content LIKE "%${filter}%"`)
     : (whereClause = where);
 
   const [posts] = await postService.getFromExplore({
