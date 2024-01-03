@@ -22,14 +22,7 @@ class User {
   async findByEmail(email) {
     const [data] = await db.findOne({
       tableName: 'users',
-      fields: [
-        'id',
-        'name',
-        'last_name',
-        'email',
-        'username',
-        'password',
-      ],
+      fields: ['id', 'name', 'last_name', 'email', 'username', 'password'],
       idFields: ['email'],
       values: [email],
     });
@@ -72,6 +65,17 @@ class User {
       values: [id],
     });
 
+    return response;
+  }
+
+  async exploreUsers({ userId, orderBy, limit, offset, whereClause = false }) {
+    const [response] = await db.getUsers({
+      userId,
+      whereClause,
+      orderBy,
+      limit: limit ? parseInt(limit) : 100,
+      offset: offset ? parseInt(offset) : 1,
+    });
     return response;
   }
 }

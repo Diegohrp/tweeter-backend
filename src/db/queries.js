@@ -93,6 +93,27 @@ class Queries {
     const response = await pool.query(query, values);
     return response;
   }
+
+  async getUsers({ userId, whereClause = false, orderBy, limit, offset }) {
+    const query = `
+    SELECT 
+      users.id,
+      users.name,
+      users.last_name,
+      users.username,
+      users.email,
+      users.photo,
+      users.bio,
+      users.num_followers,
+      (SELECT TRUE FROM followers WHERE followers.following_id = users.id AND followers.follower_id = ? ) AS following
+      FROM users
+      ${whereClause ? `WHERE ${whereClause}` : ''}
+      ORDER BY ? LIMIT ?,?
+    `;
+    const values = [userId, orderBy, offset, limit];
+    const response = await pool.query(query, values);
+    return response;
+  }
 }
 
 module.exports = { Queries };

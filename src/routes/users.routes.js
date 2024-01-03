@@ -6,9 +6,7 @@ const {
 } = require('../schemas/users.schemas');
 const validateData = require('../middlewares/validate.middlewares');
 const boom = require('@hapi/boom');
-const {
-  verifyApiKey,
-} = require('../middlewares/verifyApiKey.middlewares');
+const { verifyApiKey } = require('../middlewares/verifyApiKey.middlewares');
 const passport = require('passport');
 
 const router = express.Router();
@@ -19,9 +17,7 @@ router.get(
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
-      const [data] = await userService.findByEmail(
-        'tory@cobrakai.com'
-      );
+      const [data] = await userService.findByEmail('tory@cobrakai.com');
       res.status(200).json({
         msg: 'users',
         data,
@@ -100,8 +96,9 @@ router.get(
   async (req, res, next) => {
     try {
       const id = req.user.sub;
-      const [{ photo, name, last_name }] =
-        await userService.getUserBasicInfo(id);
+      const [{ photo, name, last_name }] = await userService.getUserBasicInfo(
+        id
+      );
 
       photo
         ? res.json({ id, name, last_name, photo })
@@ -112,6 +109,35 @@ router.get(
             photo:
               'https://res.cloudinary.com/dpimpzyh4/image/upload/v1674951625/tweeter/posts/1674951621844_bobLavando.jpeg.jpg',
           });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+//Get users
+router.get(
+  '/explore',
+  verifyApiKey,
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const { sub: userId } = req.user;
+      const { filter, limit, offset } = req.query;
+      let where = `users.id != ${userId}`;
+
+      if (filter) {
+        where += ` AND (users.name LIKE "%${filter}%" OR users.username LIKE "%${filter}%" OR users.last_name LIKE "%${filter}%")`;
+      }
+
+      const response = await userService.exploreUsers({
+        userId,
+        limit,
+        offset,
+        orderBy: 'num_followers DESC',
+        whereClause: where,
+      });
+      res.json(response);
     } catch (err) {
       next(err);
     }
