@@ -28,6 +28,17 @@ class Post {
     return response;
   }
 
+  async getProfileLikes({ userId, profileId, offset, limit }) {
+    const response = await db.findLikedPosts({
+      userId,
+      profileId,
+      offset: offset ? parseInt(offset) : 1,
+      limit: limit ? parseInt(limit) : 100,
+    });
+
+    return response;
+  }
+
   async addInteraction(user_id, post_id, interaction) {
     const response = await db.callProcedure({
       name: interaction,

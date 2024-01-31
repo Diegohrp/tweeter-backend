@@ -317,4 +317,27 @@ router.get(
   }
 );
 
+router.get(
+  '/profile/likes/:profileId',
+  verifyApiKey,
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const { sub: userId } = req.user;
+      const { profileId } = req.params;
+      const { limit, offset } = req.query;
+
+      const [likes] = await postService.getProfileLikes({
+        userId,
+        profileId,
+        limit,
+        offset,
+      });
+      res.json(likes);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 module.exports = router;

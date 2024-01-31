@@ -61,7 +61,7 @@ class Queries {
     );
     const values = conditions.map((obj) => obj.value);
 
-    const query = `SELECT * from ${view} WHERE ${fields} LIMIT ?,?`;
+    const query = `SELECT * from ${view} WHERE ${fields.join(' ')} LIMIT ?,?`;
     const response = await pool.query(query, [...values, offset, limit]);
     return response;
   }
@@ -127,6 +127,29 @@ class Queries {
     WHERE users.id = ? AND users.active = 1;
     `;
     const response = await pool.query(query, [userId, profileId]);
+    return response;
+  }
+
+  async findLikedPosts({ userId, profileId, limit, offset }) {
+    const query = `
+    SELECT
+      posts_details_view.*,
+      posts_details_view.created_at AS date_info,
+      (SELECT saved.id FROM saved WHERE saved.user_id = ? AND saved.post_id = posts_details_view.id) AS saved,
+      (SELECT likes_posts.id FROM likes_posts WHERE likes_posts.user_id = ? AND likes_posts.post_id = posts_details_view.id) AS liked,
+      (SELECT retweets.user_id FROM retweets WHERE user_id = ? AND retweets.post_id = posts_details_view.id) AS who_retweeted_id
+    FROM posts_details_view
+    INNER JOIN likes_posts
+      ON posts_details_view.id = likes_posts.post_id
+    WHERE likes_posts.user_id = ? LIMIT ?,?`;
+    const response = await pool.query(query, [
+      userId,
+      userId,
+      userId,
+      profileId,
+      offset,
+      limit,
+    ]);
     return response;
   }
 }
