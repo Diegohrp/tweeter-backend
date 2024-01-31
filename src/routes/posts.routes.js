@@ -5,6 +5,8 @@ const {
   validateImgAndData,
 } = require('../middlewares/validateWithImg.middlewares');
 
+const { verifyApiKey } = require('../middlewares/verifyApiKey.middlewares');
+
 //Schemas
 const {
   PostWithImgSchema,
@@ -24,6 +26,7 @@ const postHashtagsService = new PostHashTags();
 
 router.post(
   '/',
+  verifyApiKey,
   validateImgAndData(PostWithImgSchema, PostWithoutImgSchema),
   async (req, res, next) => {
     try {
@@ -55,6 +58,7 @@ router.post(
 
 router.get(
   '/home',
+  verifyApiKey,
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
@@ -70,6 +74,7 @@ router.get(
 
 router.post(
   '/like-post',
+  verifyApiKey,
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     const { sub: userId } = req.user;
@@ -85,6 +90,7 @@ router.post(
 
 router.post(
   '/retweets',
+  verifyApiKey,
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
@@ -100,6 +106,7 @@ router.post(
 
 router.delete(
   '/like-post/:postId',
+  verifyApiKey,
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
@@ -119,6 +126,7 @@ router.delete(
 
 router.delete(
   '/retweets/:postId',
+  verifyApiKey,
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
@@ -139,6 +147,7 @@ router.delete(
 //Bookmarks
 router.post(
   '/bookmarks',
+  verifyApiKey,
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
@@ -154,6 +163,7 @@ router.post(
 
 router.delete(
   '/bookmarks/:postId',
+  verifyApiKey,
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
@@ -173,6 +183,7 @@ router.delete(
 
 router.get(
   '/bookmarks/:section',
+  verifyApiKey,
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
@@ -213,6 +224,7 @@ const explore = async (req, orderBy, where = '') => {
 
 router.get(
   '/explore/top',
+  verifyApiKey,
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
@@ -229,6 +241,7 @@ router.get(
 
 router.get(
   '/explore/latest',
+  verifyApiKey,
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
@@ -242,6 +255,7 @@ router.get(
 
 router.get(
   '/explore/media',
+  verifyApiKey,
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
@@ -255,42 +269,52 @@ router.get(
 
 //Profile posts
 
-router.get('/profile/tweets/:profileId', async (req, res, next) => {
-  try {
-    const { profileId } = req.params;
-    const userId = 4;
-    const { limit, offset } = req.query;
+router.get(
+  '/profile/tweets/:profileId',
+  verifyApiKey,
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const { profileId } = req.params;
+      const { sub: userId } = req.user;
+      const { limit, offset } = req.query;
 
-    const [posts] = await postService.getFromExplore({
-      userId,
-      whereClause: `user_id = ${profileId}`,
-      orderBy: 'date_info DESC',
-      limit,
-      offset,
-    });
-    res.json(posts);
-  } catch (err) {
-    next(err);
+      const [posts] = await postService.getFromExplore({
+        userId,
+        whereClause: `user_id = ${profileId}`,
+        orderBy: 'date_info DESC',
+        limit,
+        offset,
+      });
+      res.json(posts);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
-router.get('/profile/media/:profileId', async (req, res, next) => {
-  try {
-    const { profileId } = req.params;
-    const userId = 4;
-    const { limit, offset } = req.query;
+router.get(
+  '/profile/media/:profileId',
+  verifyApiKey,
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const { profileId } = req.params;
+      const { sub: userId } = req.user;
+      const { limit, offset } = req.query;
 
-    const [posts] = await postService.getFromExplore({
-      userId,
-      whereClause: `user_id = ${profileId} AND image IS NOT NULL`,
-      orderBy: 'date_info DESC',
-      limit,
-      offset,
-    });
-    res.json(posts);
-  } catch (err) {
-    next(err);
+      const [posts] = await postService.getFromExplore({
+        userId,
+        whereClause: `user_id = ${profileId} AND image IS NOT NULL`,
+        orderBy: 'date_info DESC',
+        limit,
+        offset,
+      });
+      res.json(posts);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 module.exports = router;

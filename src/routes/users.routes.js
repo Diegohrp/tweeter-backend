@@ -50,6 +50,22 @@ router.post(
 );
 
 //Get and edit profile info
+
+router.get('/profile/:profileId', async (req, res, next) => {
+  try {
+    const userId = 4;
+    const { profileId } = req.params;
+    const [profileInfo] = await userService.getProfileInfo({
+      userId,
+      profileId,
+    });
+    delete profileInfo.password;
+    res.json(profileInfo);
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.get(
   '/profile-info',
   verifyApiKey,

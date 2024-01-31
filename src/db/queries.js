@@ -114,6 +114,21 @@ class Queries {
     const response = await pool.query(query, values);
     return response;
   }
+
+  async findUser({ userId, profileId }) {
+    const query = `
+    SELECT
+      users.*,
+      (SELECT TRUE FROM followers WHERE followers.following_id = users.id AND followers.follower_id = ? ) AS following,
+      COUNT(followers.following_id) AS num_following
+    FROM users 
+      INNER JOIN followers 
+      ON users.id = followers.follower_id 
+    WHERE users.id = ? AND users.active = 1;
+    `;
+    const response = await pool.query(query, [userId, profileId]);
+    return response;
+  }
 }
 
 module.exports = { Queries };

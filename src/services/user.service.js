@@ -78,6 +78,11 @@ class User {
     });
     return response;
   }
+
+  async getProfileInfo({ userId, profileId }) {
+    const [response] = await db.findUser({ userId, profileId });
+    return response;
+  }
 }
 
 module.exports = User;
