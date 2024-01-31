@@ -253,4 +253,44 @@ router.get(
   }
 );
 
+//Profile posts
+
+router.get('/profile/tweets/:profileId', async (req, res, next) => {
+  try {
+    const { profileId } = req.params;
+    const userId = 4;
+    const { limit, offset } = req.query;
+
+    const [posts] = await postService.getFromExplore({
+      userId,
+      whereClause: `user_id = ${profileId}`,
+      orderBy: 'date_info DESC',
+      limit,
+      offset,
+    });
+    res.json(posts);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/profile/media/:profileId', async (req, res, next) => {
+  try {
+    const { profileId } = req.params;
+    const userId = 4;
+    const { limit, offset } = req.query;
+
+    const [posts] = await postService.getFromExplore({
+      userId,
+      whereClause: `user_id = ${profileId} AND image IS NOT NULL`,
+      orderBy: 'date_info DESC',
+      limit,
+      offset,
+    });
+    res.json(posts);
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;
