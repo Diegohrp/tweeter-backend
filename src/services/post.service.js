@@ -71,6 +71,17 @@ class Post {
     });
     return response;
   }
+
+  async getProfileRetweets({ userId, profileId, offset, limit }) {
+    const response = await db.findRetweets({
+      userId,
+      profileId,
+      offset: offset ? parseInt(offset) : 1,
+      limit: limit ? parseInt(limit) : 100,
+    });
+
+    return response;
+  }
 }
 
 module.exports = Post;

@@ -152,6 +152,29 @@ class Queries {
     ]);
     return response;
   }
+  async findRetweets({ userId, profileId, limit, offset }) {
+    const query = `
+    SELECT 
+	    posts_details_view.*,
+      posts_details_view.created_at AS date_info,
+      (SELECT id FROM saved WHERE user_id = ? AND post_id = posts_details_view.id) AS saved,
+      (SELECT id FROM likes_posts WHERE user_id = ? AND post_id = posts_details_view.id) AS liked,
+      (SELECT user_id FROM retweets WHERE user_id = ? AND post_id = posts_details_view.id) AS who_retweeted_id
+    FROM posts_details_view 
+    INNER JOIN retweets
+    	ON posts_details_view.id = retweets.post_id
+    WHERE retweets.user_id = ? LIMIT ?,?;
+    `;
+    const response = pool.query(query, [
+      userId,
+      userId,
+      userId,
+      profileId,
+      offset,
+      limit,
+    ]);
+    return response;
+  }
 }
 
 module.exports = { Queries };

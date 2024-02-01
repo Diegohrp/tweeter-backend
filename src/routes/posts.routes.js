@@ -340,4 +340,27 @@ router.get(
   }
 );
 
+router.get(
+  '/profile/retweets/:profileId',
+  verifyApiKey,
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const { sub: userId } = req.user;
+      const { profileId } = req.params;
+      const { limit, offset } = req.query;
+
+      const [retweets] = await postService.getProfileRetweets({
+        userId,
+        profileId,
+        limit,
+        offset,
+      });
+      res.json(retweets);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 module.exports = router;
