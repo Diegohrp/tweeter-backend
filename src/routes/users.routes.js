@@ -14,6 +14,7 @@ const userService = new Service();
 
 router.get(
   '/',
+  verifyApiKey,
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
@@ -51,20 +52,25 @@ router.post(
 
 //Get and edit profile info
 
-router.get('/profile/:profileId', async (req, res, next) => {
-  try {
-    const userId = 4;
-    const { profileId } = req.params;
-    const [profileInfo] = await userService.getProfileInfo({
-      userId,
-      profileId,
-    });
-    delete profileInfo.password;
-    res.json(profileInfo);
-  } catch (err) {
-    next(err);
+router.get(
+  '/profile/:profileId',
+  verifyApiKey,
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const { sub: userId } = req.user;
+      const { profileId } = req.params;
+      const [profileInfo] = await userService.getProfileInfo({
+        userId,
+        profileId,
+      });
+      delete profileInfo.password;
+      res.json(profileInfo);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 router.get(
   '/profile-info',

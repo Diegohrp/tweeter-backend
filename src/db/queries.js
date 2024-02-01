@@ -120,13 +120,11 @@ class Queries {
     SELECT
       users.*,
       (SELECT TRUE FROM followers WHERE followers.following_id = users.id AND followers.follower_id = ? ) AS following,
-      COUNT(followers.following_id) AS num_following
+      (SELECT COUNT(*) FROM followers WHERE follower_id = ?) AS num_following
     FROM users 
-      INNER JOIN followers 
-      ON users.id = followers.follower_id 
-    WHERE users.id = ? AND users.active = 1;
+    WHERE users.id = ? AND users.active = 1
     `;
-    const response = await pool.query(query, [userId, profileId]);
+    const response = await pool.query(query, [userId, profileId, profileId]);
     return response;
   }
 
