@@ -166,4 +166,20 @@ router.get(
   }
 );
 
+router.post(
+  '/follow',
+  verifyApiKey,
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const { sub: followerId } = req.user;
+      const { followingId } = req.body;
+      const response = userService.followUnFollow({ followerId, followingId });
+      res.json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 module.exports = router;

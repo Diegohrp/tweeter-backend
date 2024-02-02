@@ -83,6 +83,14 @@ class User {
     const [response] = await db.findUser({ userId, profileId });
     return response;
   }
+
+  async followUnFollow({ followerId, followingId }) {
+    await db.callProcedure({
+      name: 'follow_user',
+      inputs: [followerId, followingId],
+    });
+    return true;
+  }
 }
 
 module.exports = User;
