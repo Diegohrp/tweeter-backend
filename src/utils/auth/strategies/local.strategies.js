@@ -24,7 +24,7 @@ const LocalStrategy = new Strategy(
       //compare passwords by hash
       const passMatch = await bcrypt.compare(password, user.password);
       if (!passMatch) {
-        done(boom.unauthorized('Wrong pass'), false);
+        done(boom.unauthorized('Wrong password or email'), false);
       }
       delete user.password;
       done(null, user);

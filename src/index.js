@@ -16,7 +16,7 @@ const app = express();
 const whitelist = [
   'http://127.0.0.1:3006',
   'http://localhost:3006',
-  'https://boisterous-faun-d63901.netlify.app',
+  'https://tubular-syrniki-a4621a.netlify.app',
 ];
 const options = {
   origin: (origin, cb) => {
